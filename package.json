@@ -1,0 +1,24 @@
+{
+  "name": "go-server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon --exec ts-node server.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "axios": "^1.7.9",
+    "express": "^4.21.2",
+    "typescript": "^5.7.3"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.13.5",
+    "nodemon": "^3.1.9",
+    "ts-node": "^10.9.2"
+  }
+}
