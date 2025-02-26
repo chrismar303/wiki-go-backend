@@ -1,14 +1,14 @@
 import express from 'express'
 import axios from 'axios'
+import 'dotenv/config'
 
 const app = express()
 const PORT: number | string = process.env.PORT || 3000
 
 const luceneNodes: string[] = [
-  // TODO: replace with EC2 Nodes Endpoints
-  'http://127.0.0.1:3001/search',
-  'http://127.0.0.1:3002/search',
-  'http://127.0.0.1:3003/search'
+  `${process.env.LUCENE_ENDPOINT_1}`,
+  `${process.env.LUCENE_ENDPOINT_2}`,
+  `${process.env.LUCENE_ENDPOINT_3}`
 ]
 
 /*** Creates 3 Test Servers ***/
@@ -27,7 +27,7 @@ luceneNodes.map((node, index) => {
 app.get('/search', async (req, res) => {
   // send request at lucene compute node
   const promises = luceneNodes.map(node =>
-    axios.get(node, {params: {q: req.query.q}})
+    axios.get(`${node}/search`, {params: {q: req.query.q}})
   )
   const results = await Promise.all(promises)
   res.send(`${results.map(r => r.data)}`)
