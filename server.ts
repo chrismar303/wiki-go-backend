@@ -1,36 +1,34 @@
 import express from 'express'
+import cors from 'cors'
 import axios from 'axios'
 import 'dotenv/config'
 
 const app = express()
 const PORT: number | string = process.env.PORT || 3000
+app.use(cors()) // enable frontend access
 
 const luceneNodes: string[] = [
   `${process.env.LUCENE_ENDPOINT_1}`,
   `${process.env.LUCENE_ENDPOINT_2}`,
-  `${process.env.LUCENE_ENDPOINT_3}`
+  `${process.env.LUCENE_ENDPOINT_3}`,
+  `${process.env.LUCENE_ENDPOINT_4}`
 ]
 
-/*** Creates 3 Test Servers ***/
-// TODO: DELETE once nodes above are connected
-luceneNodes.map((node, index) => {
-  const nodeApp = express()
-  nodeApp.get('/search', (req, res) => {
-    res.send(`${node}: | ${req.query.q}\n`)
-  })
-  nodeApp.listen(index + 3001, () => {
-    console.log(`listeing at ${node}`)
-  })
-})
-
-/*** Forward request to compute nodes ***/
+/*** Forward request to lucene compute nodes ***/
+let currentLuceneNodeIndex = 0
 app.get('/search', async (req, res) => {
-  // send request at lucene compute node
-  const promises = luceneNodes.map(node =>
-    axios.get(`${node}/search`, {params: {q: req.query.q}})
-  )
-  const results = await Promise.all(promises)
-  res.send(`${results.map(r => r.data)}`)
+  // select using round-robin
+  const selectedLuceneNode = luceneNodes[currentLuceneNodeIndex]
+  currentLuceneNodeIndex = ++currentLuceneNodeIndex % luceneNodes.length
+  console.log(`select: ${selectedLuceneNode}`)
+
+  const response = await axios.get(`${selectedLuceneNode}/search`, {
+    params: {
+      query: req.query.q,
+      forwarding: true
+    }
+  })
+  res.send(response.data)
 })
 
 app.listen(PORT, () => {
