@@ -16,18 +16,31 @@ const luceneNodes: string[] = [
 
 /*** Forward request to lucene compute nodes ***/
 let currentLuceneNodeIndex = 0
-app.get('/search', async (req, res) => {
-  // select using round-robin
+const selectNode = () => {
   const selectedLuceneNode = luceneNodes[currentLuceneNodeIndex]
   currentLuceneNodeIndex = ++currentLuceneNodeIndex % luceneNodes.length
   console.log(`select: ${selectedLuceneNode}`)
+  return selectedLuceneNode
+}
 
+app.get('/search', async (req, res) => {
+  // select using round-robin
+  const selectedLuceneNode = selectNode()
   const response = await axios.get(`${selectedLuceneNode}/search`, {
     params: {
       query: req.query.q,
       forwarding: true
     }
   })
+  res.send(response.data)
+})
+
+app.get('/article/:title', async (req, res) => {
+  // select using round-robin
+  const selectedLuceneNode = selectNode()
+  const response = await axios.get(
+    `${selectedLuceneNode}/document/${req.params.title}`
+  )
   res.send(response.data)
 })
 
