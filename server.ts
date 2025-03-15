@@ -1,10 +1,11 @@
 import express from 'express'
 import cors from 'cors'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import 'dotenv/config'
 
 const app = express()
 const PORT: number | string = process.env.PORT || 3000
+
 app.use(cors()) // enable frontend access
 
 const luceneNodes: string[] = [
@@ -16,6 +17,7 @@ const luceneNodes: string[] = [
 
 /*** Forward request to lucene compute nodes ***/
 let currentLuceneNodeIndex = 0
+
 const selectNode = () => {
   const selectedLuceneNode = luceneNodes[currentLuceneNodeIndex]
   currentLuceneNodeIndex = ++currentLuceneNodeIndex % luceneNodes.length
@@ -35,7 +37,8 @@ app.get('/search', async (req, res) => {
     })
     res.send(response.data)
   } catch (error) {
-    console.error("Error fetching search results:", error.message)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error("Error fetching search results:", errorMessage)
     res.status(500).json({ error: "Internal Server Error" })
   }
 })
@@ -49,7 +52,8 @@ app.get('/article/:title', async (req, res) => {
     )
     res.send(response.data)
   } catch (error) {
-    console.error("Error fetching article:", error.message)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error("Error fetching article:", errorMessage)
     res.status(500).json({ error: "Internal Server Error" })
   }
 })
