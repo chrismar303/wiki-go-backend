@@ -59,7 +59,7 @@ app.get('/search', async (req, res) => {
 
     const response = await axios.get(`${selectedLuceneNode}/search`, {
       params: {
-        query: req.query.query,
+        query: req.query.q,
         forwarding: true
       }
     })
