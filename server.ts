@@ -24,24 +24,34 @@ const selectNode = () => {
 }
 
 app.get('/search', async (req, res) => {
-  // select using round-robin
-  const selectedLuceneNode = selectNode()
-  const response = await axios.get(`${selectedLuceneNode}/search`, {
-    params: {
-      query: req.query.q,
-      forwarding: true
-    }
-  })
-  res.send(response.data)
+  try {
+    // select using round-robin
+    const selectedLuceneNode = selectNode()
+    const response = await axios.get(`${selectedLuceneNode}/search`, {
+      params: {
+        query: req.query.q,
+        forwarding: true
+      }
+    })
+    res.send(response.data)
+  } catch (error) {
+    console.error("Error fetching search results:", error.message)
+    res.status(500).json({ error: "Internal Server Error" })
+  }
 })
 
 app.get('/article/:title', async (req, res) => {
-  // select using round-robin
-  const selectedLuceneNode = selectNode()
-  const response = await axios.get(
-    `${selectedLuceneNode}/document/${req.params.title}`
-  )
-  res.send(response.data)
+  try {
+    // select using round-robin
+    const selectedLuceneNode = selectNode()
+    const response = await axios.get(
+      `${selectedLuceneNode}/document/${req.params.title}`
+    )
+    res.send(response.data)
+  } catch (error) {
+    console.error("Error fetching article:", error.message)
+    res.status(500).json({ error: "Internal Server Error" })
+  }
 })
 
 app.listen(PORT, () => {
