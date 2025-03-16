@@ -77,7 +77,7 @@ app.get('/article/:title', async (req, res) => {
     const { node: selectedLuceneNode } = selectNode(req)
     
     const response = await axios.get(
-      `${selectedLuceneNode}/document/${req.params.title}`
+      `${selectedLuceneNode}/document/${req.params.title}/forwarding=true`
     )
     res.send(response.data)
   } catch (error) {
